@@ -1,6 +1,7 @@
 from abc import ABCMeta
-from sqlalchemy.orm import Session
+
 from sqlalchemy import func, inspect
+from sqlalchemy.orm import Session
 
 from app.database import Base
 
@@ -104,6 +105,7 @@ class AbstractModelService(metaclass=ABCMeta):
             session.query(*[getattr(cls._model, attr) for attr in attributes])
             .filter_by(**filters)
             .first()
+            ._mapping
         )
 
     @classmethod

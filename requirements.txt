@@ -2,3 +2,7 @@ fastapi[all]
 uvicorn
 sqlalchemy
 psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic
+black
