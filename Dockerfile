@@ -1,5 +1,5 @@
 # pull the official docker image
-FROM python:3.11.1-slim
+FROM python:3.12-slim
 
 # set work directory
 WORKDIR /app
@@ -14,3 +14,6 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY . .
+
+# run the server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
