@@ -101,12 +101,13 @@ class AbstractModelService(metaclass=ABCMeta):
         Returns:
             QuerySet
         """
-        return (
+        result = (
             session.query(*[getattr(cls._model, attr) for attr in attributes])
             .filter_by(**filters)
             .first()
-            ._mapping
         )
+        if result:
+            return result._mapping
 
     @classmethod
     def get_json(cls, session: Session, attributes: dict, **filters):

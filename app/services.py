@@ -12,12 +12,12 @@ from app.abstract_model_service import AbstractModelService
 from app.database import get_db
 from app.models import User
 from app.schemas import TokenData, UserInDB
+from app.settings import Settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-from app.settings import Settings
 
 settings = Settings()
 
@@ -34,11 +34,11 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
+def get_user(db, **kwargs):
     user = UserService.get(
         db,
         attributes=["id", "username", "is_active", "hashed_password"],
-        username=username,
+        **kwargs,
     )
     if user:
         return UserInDB(**user)
@@ -46,7 +46,7 @@ def get_user(db, username: str):
 
 
 def authenticate_user(db: Session, username: str, password: str):
-    user = get_user(db, username)
+    user = get_user(db, username=username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -79,14 +79,14 @@ async def get_current_user(
         payload = jwt.decode(
             token, settings.secret_key, algorithms=[settings.algorithm]
         )
-        username: str = payload.get("sub")
-        if username is None:
+        id_: str = payload.get("id")
+        if id_ is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(id=id_)
     except JWTError:
         raise credentials_exception
 
-    user = get_user(db, username=token_data.username)
+    user = get_user(db, id=token_data.id)
     if user is None:
         raise credentials_exception
     return user
